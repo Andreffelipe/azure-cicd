@@ -1,0 +1,35 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Publish to Production
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+ 	RESOURCE_GROUP_NAME: personal-website
+  CONTAINER_NAME: personal-website-backend
+  DNS_LABEL: andre-api
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Azure Login
+      uses: Azure/login@v1.1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS}}
+    - name: deploy ACI
+      run: |
+          az container create \
+          --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
+          --name ${{ env.CONTAINER_NAME }} \
+          --location brasilsouth \
+          --dns-name-label ${{ env.DNS_LABEL }}
+          --ports 80
